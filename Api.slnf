@@ -1,0 +1,8 @@
+{
+  "solution": {
+    "path": "..\\WebApp\\WebApp.sln",
+    "projects": [
+      "..\\Api\\Api.csproj"
+    ]
+  }
+}
