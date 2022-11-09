@@ -1,4 +1,5 @@
 ﻿using Api.Context;
+using Api.Handlers;
 using Api.Models;
 using Api.ViewModel;
 using Microsoft.EntityFrameworkCore;
@@ -17,8 +18,9 @@ namespace Api.Repositories.Data
             var data = myContext.Users
                 .Include(x => x.Employee)
                 .Include(x => x.Role)
-                .SingleOrDefault(x => x.Employee.Email.Equals(email) && x.Password.Equals(password));
-            if (data != null)
+                .SingleOrDefault(x => x.Employee.Email.Equals(email));
+            var validate = Hashing.ValidatePassword(password, data.Password);
+            if (data != null && validate)
             {
                 ResponseLoginVM responseLogin = new ResponseLoginVM()
                 {
@@ -48,7 +50,7 @@ namespace Api.Repositories.Data
                     myContext.Users.Add(new User()
                     {
                         Id = id,
-                        Password = registerVM.Password,
+                        Password = Hashing.HashPassword(registerVM.Password),
                         RoleId = 1
                     });
                     var resultUser = myContext.SaveChanges();
@@ -65,10 +67,11 @@ namespace Api.Repositories.Data
             var data = myContext.Users
                .Include(x => x.Employee)
                .Include(x => x.Role)
-               .SingleOrDefault(x => x.Employee.Email.Equals(changePasswordVM.Email) && x.Password.Equals(changePasswordVM.Password));
-            if (data != null)
+               .SingleOrDefault(x => x.Employee.Email.Equals(changePasswordVM.Email));
+            var validate = Hashing.ValidatePassword(changePasswordVM.Password, data.Password);
+            if (data != null && validate)
             {
-                data.Password = changePasswordVM.NewPass;
+                data.Password = Hashing.HashPassword(changePasswordVM.NewPass);
                 myContext.Entry(data).State = EntityState.Modified;
                 var resultUser = myContext.SaveChanges();
                 if (resultUser > 0)
@@ -87,7 +90,7 @@ namespace Api.Repositories.Data
             {
                 if (forgotPasswordVM.NewPass == forgotPasswordVM.ConfPass)
                 {
-                    data.Password = forgotPasswordVM.ConfPass;
+                    data.Password = Hashing.HashPassword(forgotPasswordVM.ConfPass);
                     myContext.Entry(data).State = EntityState.Modified;
                     var resultUser = myContext.SaveChanges();
                     if (resultUser > 0)

@@ -1,17 +1,23 @@
 ﻿using Api.Context;
 using Api.Models;
 using Api.Repositories.Interface;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Repositories.Data
 {
-    public class DivisionRepository : IRepository<Division, int>
+    public class DivisionRepository : GeneralRepository<Division>
     {
         private MyContext myContext;
-        public DivisionRepository(MyContext myContext)
+        public DivisionRepository(MyContext myContext) : base(myContext)
         {
             this.myContext = myContext;
         }
+        public List<Division> Get(string name)
+        {
+            return myContext.Divisions.Where(d => d.Name == name).ToList();
+        }
+        /*
         //GET ALL
         public IEnumerable<Division> Get()
         {
@@ -47,6 +53,6 @@ namespace Api.Repositories.Data
                 return result;
             }
             return 0;
-        }
+        }*/
     }
 }

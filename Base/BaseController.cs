@@ -1,40 +1,41 @@
-﻿using System.Data;
-using Api.Base;
-using Api.Models;
+﻿using Api.Models;
 using Api.Repositories.Data;
-using Microsoft.AspNetCore.Authorization;
+using Api.Repositories.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.Controllers
+namespace Api.Base
 {
-    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
-    public class DepartmentController : BaseController<DepartmentRepository, Department>
+    public class BaseController<Repository, Entity> : ControllerBase
+        where Repository : class, IRepository<Entity, int>
+        where Entity : class
     {
-        private DepartmentRepository repository;
-        public DepartmentController(DepartmentRepository repository) : base(repository)
+        Repository repository;
+        public BaseController(Repository repository)
         {
             this.repository = repository;
         }
-
-        //StatusCode? 200/400/401/500
-        //Message = data berhasil didapat dsb
-        //Data/Output
-        /*
         [HttpGet]
-        public ActionResult GetAll()
+        public IActionResult Get()
         {
+            /*var data = repository.Get();
+            return Ok(new
+            {
+                StatusCode = 200,
+                Message = "Data has been retrieved",
+                Data = data
+            });*/
             try
             {
-                var data = departmentRepository.Get();
+                var data = repository.Get();
                 if (data == null)
                 {
                     return Ok(new
                     {
                         StatusCode = 200,
-                        Message = "Data tidak ditemukan1"
+                        Message = "Data tidak ditemukan!"
                     });
                 }
                 else
@@ -42,7 +43,7 @@ namespace Api.Controllers
                     return Ok(new
                     {
                         StatusCode = 200,
-                        Message = "Data ditemukan!",
+                        Message = "Data has been retrieved!",
                         Data = data
                     });
                 }
@@ -56,19 +57,25 @@ namespace Api.Controllers
                 });
             }
         }
-
         [HttpGet("{id}")]
-        public ActionResult GetById(int id)
+        public IActionResult GetById(int id)
         {
+            /*var data = repository.GetById(id);
+            return Ok(new
+            {
+                StatusCode = 200,
+                Message = "Data has been retrieved",
+                Data = data
+            });*/
             try
             {
-                var data = departmentRepository.GetById(id);
+                var data = repository.GetById(id);
                 if (data == null)
                 {
-                    return Ok(new 
+                    return Ok(new
                     {
                         StatusCode = 200,
-                        Message = "Data tidak ditemukan!" 
+                        Message = "Data tidak ditemukan!"
                     });
                 }
                 else
@@ -76,7 +83,7 @@ namespace Api.Controllers
                     return Ok(new
                     {
                         StatusCode = 200,
-                        Message = "Data ditemukan!",
+                        Message = "Data has been retrieved!",
                         Data = data
                     });
                 }
@@ -90,16 +97,21 @@ namespace Api.Controllers
                 });
             }
         }
-
         [HttpPost]
-        public ActionResult Create(Department department)
+        public IActionResult Create(Entity entity)
         {
+            /*var result = repository.Create(entity);
+            return Ok(new
+            {
+                StatusCode = 200,
+                Message = "Data has been created",
+            });*/
             try
             {
-                var result = departmentRepository.Create(department);
+                var result = repository.Create(entity);
                 if (result == 0)
                 {
-                    return Ok(new 
+                    return Ok(new
                     {
                         StatusCode = 200,
                         Message = "Data gagal disimpan!"
@@ -107,11 +119,10 @@ namespace Api.Controllers
                 }
                 else
                 {
-                    return Ok(new 
-                    { 
-                        StatusCode = 200, 
-                        Message = "Data berhasil disimpan!",
-                        Data = result
+                    return Ok(new
+                    {
+                        StatusCode = 200,
+                        Message = "Data has been created!"
                     });
                 }
             }
@@ -124,27 +135,32 @@ namespace Api.Controllers
                 });
             }
         }
-
         [HttpPut]
-        public ActionResult Update(Department department)
+        public IActionResult Update(Entity entity)
         {
+            /*var result = repository.Update(entity);
+            return Ok(new
+            {
+                StatusCode = 200,
+                Message = "Data has been updated",
+            });*/
             try
             {
-                var result = departmentRepository.Update(department);
+                var result = repository.Update(entity);
                 if (result == 0)
                 {
-                    return Ok(new 
+                    return Ok(new
                     {
                         StatusCode = 200,
-                        Message = "Data gagal diupdate!" 
+                        Message = "Data gagal diupdate!"
                     });
-                } 
+                }
                 else
                 {
-                    return Ok(new 
-                    { 
+                    return Ok(new
+                    {
                         StatusCode = 200,
-                        Message = "Data berhasil diupdate!" 
+                        Message = "Data has been updated!"
                     });
                 }
             }
@@ -157,27 +173,32 @@ namespace Api.Controllers
                 });
             }
         }
-
         [HttpDelete]
-        public ActionResult Delete(int id)
+        public IActionResult Delete(int id)
         {
+            /*var result = repository.Delete(id);
+            return Ok(new
+            {
+                StatusCode = 200,
+                Message = "Data has been deleted",
+            });*/
             try
             {
-                var result = departmentRepository.Delete(id);
+                var result = repository.Delete(id);
                 if (result == 0)
                 {
-                    return Ok(new 
+                    return Ok(new
                     {
                         StatusCode = 200,
-                        Message = "Data gagal dihapus!" 
+                        Message = "Data gagal dihapus!"
                     });
                 }
                 else
                 {
-                    return Ok(new 
+                    return Ok(new
                     {
                         StatusCode = 200,
-                        Message = "Data berhasil dihapus!" 
+                        Message = "Data has been deleted!"
                     });
                 }
             }
@@ -189,6 +210,6 @@ namespace Api.Controllers
                     Message = ex.Message
                 });
             }
-        }*/
+        }
     }
 }

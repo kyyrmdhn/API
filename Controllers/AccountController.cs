@@ -1,7 +1,11 @@
-﻿using Api.Repositories.Data;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Api.Repositories.Data;
 using Api.ViewModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Api.Controllers
 {
@@ -10,11 +14,14 @@ namespace Api.Controllers
     public class AccountController : ControllerBase
     {
         private AccountRepository accountRepository;
-        public AccountController(AccountRepository accountRepository)
+        public IConfiguration configuration;
+        public AccountController(IConfiguration configuration, AccountRepository accountRepository)
         {
+            this.configuration = configuration;
             this.accountRepository = accountRepository; 
         }
-        [HttpGet]
+        //[HttpGet]
+        [HttpPost("Login")]
         public ActionResult Login(string email, string password)
         {
             try
@@ -22,12 +29,25 @@ namespace Api.Controllers
                 var data = accountRepository.Login(email, password);
                 if (data != null)
                 {
-                    return Ok(new
+                    var claims = new[]
                     {
-                        StatusCode = 200,
-                        Message = "Berhasil Login!",
-                        Data = data
-                    });
+                    new Claim(JwtRegisteredClaimNames.Sub, configuration["Jwt:Subject"]),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToString()),
+                    new Claim("Id", data.Id.ToString()),
+                    new Claim("FullName", data.FullName),
+                    new Claim("Email", data.Email),
+                    new Claim("role", data.Role)
+                    };
+                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
+                    var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                    var token = new JwtSecurityToken(
+                        configuration["Jwt:Issuer"],
+                        configuration["Jwt:Audience"],
+                        claims,
+                        expires: DateTime.Now.AddMinutes(10),
+                        signingCredentials: signIn);
+                    return Ok(new JwtSecurityTokenHandler().WriteToken(token));
                 }
                 else
                 {
@@ -48,7 +68,7 @@ namespace Api.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("Register")]
         public ActionResult Register(RegisterVM registerVM)
         {
             try
@@ -87,7 +107,7 @@ namespace Api.Controllers
             try
             {
                 var result = accountRepository.ChangePassword(changePasswordVM);
-                if (result != null)
+                if (result > 0)
                 {
                     return Ok(new
                     {
@@ -114,13 +134,13 @@ namespace Api.Controllers
             }
         }
 
-        [HttpPut("ForgorPassword/")]
+        [HttpPut("ForgotPassword/")]
         public ActionResult ForgotPassword(ForgotPasswordVM forgotPasswordVM)
         {
             try
             {
                 var result = accountRepository.ForgotPassword(forgotPasswordVM);
-                if (result != null)
+                if (result > 0)
                 {
                     return Ok(new
                     {

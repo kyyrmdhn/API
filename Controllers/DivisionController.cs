@@ -1,19 +1,42 @@
-﻿using Api.Models;
+﻿using Api.Base;
+using Api.Models;
 using Api.Repositories.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
-    public class DivisionController : ControllerBase
+    public class DivisionController : BaseController<DivisionRepository, Division>
     {
-        private DivisionRepository divisionRepository;
-        public DivisionController(DivisionRepository divisionRepository)
+        private DivisionRepository repository;
+        public DivisionController(DivisionRepository repository) : base(repository)
         {
-            this.divisionRepository = divisionRepository;
+            this.repository = repository;
         }
 
+        [HttpGet("SearchName/")]
+        public IActionResult Get(string name)
+        {
+            var data = repository.Get(name).ToList().Count;
+            if (data == 0)
+            {
+                return Ok(new
+                {
+                    StatusCode = 200,
+                    Message = "Data tidak ditemukan",
+                });
+            }
+            return Ok(new
+            {
+                StatusCode = 200,
+                Message = "data ditemukan",
+                Data = data
+            });
+        }
+/*
         [HttpGet]
         public ActionResult GetAll()
         {
@@ -179,6 +202,6 @@ namespace Api.Controllers
                     Message = ex.Message
                 });
             }
-        }
+        }*/
     }
 }

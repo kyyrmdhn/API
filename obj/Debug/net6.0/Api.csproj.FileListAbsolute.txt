@@ -62,3 +62,5 @@ E:\Coding Camp\C#\Api\obj\Debug\net6.0\refint\Api.dll
 E:\Coding Camp\C#\Api\obj\Debug\net6.0\Api.pdb
 E:\Coding Camp\C#\Api\obj\Debug\net6.0\Api.genruntimeconfig.cache
 E:\Coding Camp\C#\Api\obj\Debug\net6.0\ref\Api.dll
+E:\Coding Camp\C#\Api\bin\Debug\net6.0\BCrypt.Net-Core.dll
+E:\Coding Camp\C#\Api\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

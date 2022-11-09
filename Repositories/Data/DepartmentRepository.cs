@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Api.Repositories.Data
 {
-    public class DepartmentRepository : IRepository<Department, int>
+    public class DepartmentRepository : GeneralRepository<Department>
     {
         private MyContext myContext;
-        public DepartmentRepository(MyContext myContext)
+        public DepartmentRepository(MyContext myContext) : base(myContext)
         {
             this.myContext = myContext;
         }
-        public IEnumerable<Department> Get()
+       /* public IEnumerable<Department> Get()
         {
             return myContext.Departments.ToList();
         }
@@ -43,6 +43,6 @@ namespace Api.Repositories.Data
                 return result;
             }
             return 0;
-        }
+        }*/
     }
 }
